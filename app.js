@@ -10,8 +10,10 @@ const lockButtons = document.querySelectorAll('.lock');
 const closeAdjustments = document.querySelectorAll('.close-adjustment');
 const sliderContainers = document.querySelectorAll('.sliders');
 let initialColors;
+//For local storage
+let savedPalletes = [];
 
-//Add event listeners
+//EventListeners
 generateBtn.addEventListener('click', randomColors);
 
 sliders.forEach((slider) => {
@@ -39,6 +41,11 @@ adjustButtons.forEach((button, index) => {
   });
 });
 
+lockButtons.forEach((button, index) => {
+  button.addEventListener('click', (e) => {
+    lockLayer(e, index);
+  });
+});
 closeAdjustments.forEach((button, index) => {
   button.addEventListener('click', () => {
     closeAdjustmentPanel(index);
@@ -47,20 +54,24 @@ closeAdjustments.forEach((button, index) => {
 
 // FUNCTIONS
 
-// function generateHex() {
-//   return chroma.random();
-// }
-
 function randomColors() {
   initialColors = [];
   colorDivs.forEach((div, index) => {
     const hexText = div.children[0];
-    // const randomColor = generateHex();
+    console.log(hexText.innerText);
+
     const randomColor = chroma.random();
-    initialColors.push(chroma(randomColor).hex());
+    if (div.classList.contains('locked')) {
+      initialColors.push(hexText.innerText);
+      return;
+    } else {
+      initialColors.push(chroma(randomColor).hex());
+    }
+
     //Add color to the background
     div.style.backgroundColor = randomColor;
     hexText.innerText = randomColor.toString().toUpperCase();
+
     checkTextContrast(randomColor, hexText);
     checkTextContrast(initialColors[index], adjustButtons[index]);
     checkTextContrast(initialColors[index], lockButtons[index]);
@@ -187,4 +198,67 @@ function closeAdjustmentPanel(index) {
   sliderContainers[index].classList.remove('active');
 }
 
+function lockLayer(e, index) {
+  const lockSVG = e.target.children[0];
+  const activeBg = colorDivs[index];
+  activeBg.classList.toggle('locked');
+
+  if (lockSVG.classList.contains('fa-lock-open')) {
+    e.target.innerHTML = '<i class="fas fa-lock"></i>';
+  } else {
+    e.target.innerHTML = '<i class="fas fa-lock-open"></i>';
+  }
+}
+
+//Save palette y local storage
+const saveBtn = document.querySelector('.save');
+const submitSave = document.querySelector('.submit-save');
+const closeSave = document.querySelector('.close-save');
+const saveContainer = document.querySelector('.save-container');
+const saveInput = document.querySelector('.save-container input');
+
+
+
+
+//Event Listeners
+saveBtn.addEventListener("click",openPalette);
+closeSave.addEventListener("click",closePalette);
+
+
+
+
+
+
+
+function openPalette(e){
+  const popup = saveContainer.children[0];
+  saveContainer.classList.add('active');
+  popup.classList.add('active');
+}
+
+function closePalette(e){
+  const popup = saveContainer.children[0];
+  saveContainer.classList.remove('active');
+  popup.classList.remove('active');
+}
+
+
+const libraryBtn = document.querySelector('.library');
+const libraryContainer = document.querySelector('.library-container');
+const closeLib = document.querySelector('.close-library');
+
+libraryBtn.addEventListener("click",openLibrary);
+closeLib.addEventListener("click",closeLibrary);
+
+function openLibrary(e){
+  const popup = libraryContainer.children[0];
+  libraryContainer.classList.add('active');
+  popup.classList.add('active');
+}
+
+function closeLibrary(e){
+  const popup = libraryContainer.children[0];
+  libraryContainer.classList.remove('active');
+  popup.classList.remove('active');
+}
 randomColors();
